@@ -1,28 +1,40 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Realtime;
+using Photon.Pun.UtilityScripts;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviourPunCallbacks
 {
-    [SerializeField]
-    private SpriteRenderer sprite;
-    private float speed = 5f;
+    public PhotonView pv;
+    private bool isJump;
+    private Rigidbody2D rigid;
+
     private void Awake()
     {
-        sprite = GetComponent<SpriteRenderer>();
+        pv = GetComponent<PhotonView>();
+        rigid = GetComponent<Rigidbody2D>();
     }
-    void Update()
+    private void Update()
     {
-        float x = Input.GetAxisRaw("Horizontal");
-        float y = Input.GetAxisRaw("Vertical");
-        Vector3 pos = new Vector3(x, y);
-        transform.position += pos.normalized * speed * Time.deltaTime;
+        if (pv.IsMine)
+        {
+            transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * Time.deltaTime * 7, Input.GetAxisRaw("Vertical") * Time.deltaTime * 7, 0));
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                isJump = true;
+                pv.RPC("Jump", RpcTarget.All);
+            }
+        }
     }
-    private void OnEnable()
+    [PunRPC]
+    void Jump(float axis)
     {
-        float r = Random.Range(0f, 1f);
-        float g = Random.Range(0f, 1f);
-        float b = Random.Range(0f, 1f);
-        sprite.color = new Color(r, g, b);
+        if (!isJump)
+            return;
+        rigid.AddForce(Vector3.up * .5f, ForceMode2D.Impulse);
+        isJump = false;
     }
 }
