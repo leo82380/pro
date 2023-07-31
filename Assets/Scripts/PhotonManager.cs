@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
+    [Header("로그인")]
     public Text statusText;
     public InputField nickNameInput;
     public InputField roomNameInput;
@@ -14,6 +15,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public byte userNum = 5;
 
     private bool connect = false;
+
+    [Header("유저 프로필")]
+    public GameObject userPanel;
+    public Text userName;
 
     private void Update() => statusText.text = PhotonNetwork.NetworkClientState.ToString();
 
@@ -37,6 +42,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             PhotonNetwork.JoinRandomRoom();
             uiPanel.SetActive(false);
             print(roomNameInput.text + "방에 입장하였습니다");
+            userPanel.SetActive(true);
+            userName.text = "당신의 이름: " + nickNameInput.text;
         }
     }
 
